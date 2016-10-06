@@ -1,0 +1,472 @@
+<apex:page sidebar="false" standardController="Opportunity" extensions="Ext_OpportunityHubLightning" >
+    
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ng-app="VFWOSRoadmap"> 
+    <head>
+        <title>Opportunity Roadmap App</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="{!URLFOR($Resource.slds104, 'assets/styles/salesforce-lightning-design-system-vf.css')}" rel="stylesheet" />
+    </head>
+    <body>
+        
+        <script>
+        	function showDatepicker(id)
+        	{
+            	var datepicker = document.getElementById(id);
+                datepicker.style.display = 'block';
+            }
+        	
+        	function hideDatepicker(id)
+        	{
+            	var datepicker = document.getElementById(id);
+                datepicker.style.display = 'none';
+            }
+        	
+        	function setHidden(hiddenId, newValue)
+        	{
+            	var hidden = document.getElementById(hiddenId);
+                hidden.value = newValue;
+            }
+        
+        	function hideModal()
+        	{
+            	document.getElementById("new-modal").style.display = 'none';
+                document.getElementById("backdrop").style.display = 'none';
+            }
+        
+        	function showModal()
+        	{
+            	document.getElementById("new-modal").style.display = 'block';
+                document.getElementById("backdrop").style.display = 'block';
+            }
+        
+        	function cancel()
+        	{
+            	hideModal();
+            }
+        
+        	
+        
+        </script>
+        
+    	<div class="slds" id="whole-page">
+            <!-- PAGE HEADER -->
+            <div class="slds-page-header" role="banner">
+              <div class="slds-grid">
+                <div class="slds-col slds-has-flexi-truncate">
+                  <div class="slds-media slds-no-space slds-grow">
+                    <div class="slds-media__figure">
+                      <svg aria-hidden="true" class="slds-icon slds-icon-standard-opportunity"> 
+                        <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/standard-sprite/svg/symbols.svg#opportunity')}"></use>
+                      </svg>
+                    </div>
+                    <div class="slds-media__body">
+                      <p class="slds-text-title--caps slds-line-height--reset">Opportunity Hub</p>
+                      <h1 class="slds-page-header__title slds-m-right--small slds-align-middle slds-truncate" title="{!opp.Name}">{!opp.Name}</h1>
+                    </div>
+                  </div>
+                </div>
+               </div>
+            </div>
+            <!-- PAGE HEADER ENDS-->
+            <div class="slds-grid slds-wrap slds-grid--pull-padded">
+                
+                <div class="slds-size--1-of-2 slds-small-size--1-of-1 slds-medium-size--3-of-6 slds-p-horizontal--small slds-m-top--small slds-grid slds-wrap">
+                    <div class="slds-size--1-of-1 slds-m-top-medium">
+                      <div class="slds-button-group slds-float--right" role="group">
+                      		<button class="slds-button slds-button--neutral slds-float--right">Cancel</button>
+                      		<button class="slds-button slds-button--brand  slds-float--right" onClick="saveOpportunity()">Save</button>
+                      </div>
+                    </div>
+                    <apex:form styleClass="slds-size--1-of-1">
+                    <apex:actionFunction action="{!save}" name="saveOpportunity" />
+                    <div class="slds-m-top-medium slds-col">
+                        <fieldset class="slds-form--compound">
+                          <legend class="slds-form-element__label slds-text-title--caps">Order Details</legend>
+                          <div class="form-element__group">
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-01">Order Number</label>
+                                <input id="input-01" class="slds-input" type="text" onChange="setHidden('{!$Component.order_number}',this.value)" value="{!opp.OrderNumber__c}" />
+                                <apex:inputHidden value="{!opp.OrderNumber__c}" id="order_number" />
+                              </div>
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-02">Tracking Number</label>
+                                <input id="input-02" class="slds-input" type="text" onChange="setHidden('{!$Component.tracking_number}',this.value)" value="{!opp.OrderNumber__c}" />
+                                <apex:inputHidden value="{!opp.TrackingNumber__c }" id="tracking_number" />
+                              </div>
+                            </div>
+                          </div>
+                        </fieldset>
+                        <fieldset class="slds-form--compound">
+                          <legend class="slds-form-element__label slds-text-title--caps">Opportunity Details</legend>
+                          <div class="form-element__group">
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-1">
+                                <label class="slds-form-element__label" for="input-03">Opportunity History</label>
+                                <textarea id="textarea-input-01" class="slds-textarea" placeholder="Placeholder Text" value="{!opp.Description}" onChange="setHidden('{!$Component.description}',this.value)"  >{!opp.Description}</textarea>
+                              	<apex:inputHidden value="{!opp.Description }" id="description" />
+                              </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-04">Close Date</label>
+                                <!-- date picker starts -->
+                                <c:Datepicker componentId="datepicker" hiddenId="{!$Component.close_date}" fieldName="CloseDate" default="{!opp.CloseDate}" ></c:Datepicker>
+                                <apex:inputHidden value="{!opp.CloseDate}" id="close_date"   />
+                                <!-- date picker ends -->
+                              </div>
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-05">Type</label>
+                                <input id="input-02" class="slds-input" type="text" onChange="setHidden('{!$Component.Type}',this.value)" value="{!opp.Type}" />
+                                <apex:inputHidden value="{!opp.Type}" id="Type" />
+                              </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-06">Stage</label>
+                                <select class="slds-select" onChange="setHidden('{!$Component.stage_name}',this.value)" value="{!opp.StageName}">
+                          			<apex:repeat value="{!stageNames}" var="stage">
+                                        <apex:outputPanel rendered="{!stage.selected == true}">
+                                            <option value="{!stage.value}" selected="selected" >{!stage.label}</option>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!stage.selected == false}">
+                                            <option value="{!stage.value}" >{!stage.label}</option>
+                                        </apex:outputPanel>
+                                    	
+                                    </apex:repeat>
+                                </select>
+                                <apex:inputHidden value="{!opp.StageName }" id="stage_name" />
+                              </div>
+                            </div>
+                          </div>
+                        </fieldset>
+                        
+                    </div>   
+                    </apex:form>
+                </div>
+                
+                <div class="slds-size--1-of-2 slds-small-size--1-of-1 slds-medium-size--3-of-6  slds-p-horizontal--small slds-m-top--medium">
+                    <ul>
+                      <li>
+                        <span class="slds-assistive-text">Task</span>
+                        <div class="slds-media">
+                          <div class="slds-media__body">
+                            <div class="slds-media slds-media--timeline slds-timeline__media--task">
+                              <div class="slds-media__figure slds-timeline__icon">
+                                <div class="slds-icon_container">
+                                  <svg aria-hidden="true" class="slds-icon slds-icon--small slds-icon-standard-task">
+                                    <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/standard-sprite/svg/symbols.svg#task')}"></use>
+                                  </svg>
+                                </div>
+                              </div>
+                              <div class="slds-media__body">
+                                <div class="slds-media">
+                                  <div class="slds-media__figure">
+                                    <label class="slds-checkbox" for="mark-complete">
+                                      <input name="checkbox" type="checkbox" id="mark-complete" />
+                                      <span class="slds-checkbox--faux"></span>
+                                      <span class="slds-form-element__label slds-assistive-text">mark-complete</span>
+                                    </label>
+                                  </div>
+                                  <div class="slds-media__body">
+                                    <h3 class="slds-truncate" title="Review proposals for EBC deck with larger team and have marketing review this"><a href="javascript:void(0);">Review proposals for EBC deck with larger team and have marketing review this</a></h3>
+                                    <ul class="slds-list--horizontal slds-wrap">
+                                      <li class="slds-m-right--large">
+                                        <span class="slds-text-title">Contact:</span>
+                                        <span class="slds-text-body--small"><a href="javascript:void(0);">Lei Chan</a></span>
+                                      </li>
+                                      <li class="slds-m-right--large">
+                                        <span class="slds-text-title">Assigned to:</span>
+                                        <span class="slds-text-body--small"><a href="javascript:void(0);">Betty Mason</a></span>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="slds-media__figure slds-media__figure--reverse">
+                            <div class="slds-timeline__actions">
+                              <p class="slds-timeline__date">Feb 24</p>
+                              <button class="slds-button slds-button--icon-border-filled slds-button--icon-x-small" aria-haspopup="true">
+                                <svg aria-hidden="true" class="slds-button__icon">
+                                  <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/utility-sprite/svg/symbols.svg#down')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">More Options</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li>
+                        <span class="slds-assistive-text">Event</span>
+                        <div class="slds-media">
+                          <div class="slds-media__body">
+                            <div class="slds-media slds-media--timeline slds-timeline__media--event">
+                              <div class="slds-media__figure slds-timeline__icon">
+                                <div class="slds-icon_container">
+                                  <svg aria-hidden="true" class="slds-icon slds-icon--small slds-icon-standard-event">
+                                    <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/standard-sprite/svg/symbols.svg#event')}"></use>
+                                  </svg>
+                                </div>
+                              </div>
+                              <div class="slds-media__body">
+                                <h3 class="slds-truncate" title="Company One — EBC Meeting"><a href="javascript:void(0);">Company One — EBC Meeting</a></h3>
+                                <p class="slds-truncate">Let’s get together to review the theater’s layout and facilities. We’ll also discuss potential things that truncate at a certain width.</p>
+                                <ul class="slds-list--horizontal slds-wrap">
+                                  <li class="slds-m-right--large">
+                                    <span class="slds-text-title">Time:</span>
+                                    <span class="slds-text-body--small"><a href="javascript:void(0);">Feb 23, 2015 11:00am–12:00pm</a></span>
+                                  </li>
+                                  <li class="slds-m-right--large">
+                                    <span class="slds-text-title">Location:</span>
+                                    <span class="slds-text-body--small"><a href="javascript:void(0);">300 Pike St, San Francisco CA</a></span>
+                                  </li>
+                                  <li class="slds-m-right--large">
+                                    <span class="slds-text-title">Name:</span>
+                                    <span class="slds-text-body--small"><a href="javascript:void(0);">Lei Chan</a>, <a href="javascript:void(0);">Jason Dewar</a>, <a href="javascript:void(0);">Gwen Jones</a> and <a href="javascript:void(0);">Pete Schaffer</a></span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="slds-media__figure slds-media__figure--reverse">
+                            <div class="slds-timeline__actions">
+                              <p class="slds-timeline__date">Feb 24</p>
+                              <button class="slds-button slds-button--icon-border-filled slds-button--icon-x-small" aria-haspopup="true">
+                                <svg aria-hidden="true" class="slds-button__icon">
+                                  <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/utility-sprite/svg/symbols.svg#down')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">More Options</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li>
+                        <span class="slds-assistive-text">Call</span>
+                        <div class="slds-media">
+                          <div class="slds-media__body">
+                            <div class="slds-media slds-media--timeline slds-timeline__media--call">
+                              <div class="slds-media__figure slds-timeline__icon">
+                                <div class="slds-icon_container">
+                                  <svg aria-hidden="true" class="slds-icon slds-icon--small slds-icon-standard-log-a-call">
+                                    <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/standard-sprite/svg/symbols.svg#log_a_call')}"></use>
+                                  </svg>
+                                </div>
+                              </div>
+                              <div class="slds-media__body">
+                                <h3 class="slds-truncate" title="Mobile conversation on Monday"><a href="javascript:void(0);">Mobile conversation on Monday</a></h3>
+                                <p class="slds-truncate">Lei seemed interested in closing this deal quickly! Let’s move.</p>
+                                <ul class="slds-list--horizontal slds-wrap">
+                                  <li class="slds-m-right--large">
+                                    <span class="slds-text-title">Name:</span>
+                                    <span class="slds-text-body--small"><a href="javascript:void(0);">Lei Chan</a></span>
+                                  </li>
+                                  <li class="slds-m-right--large">
+                                    <span class="slds-text-title">Assigned to:</span>
+                                    <span class="slds-text-body--small"><a href="javascript:void(0);">Betty Mason</a></span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="slds-media__figure slds-media__figure--reverse">
+                            <div class="slds-timeline__actions">
+                              <p class="slds-timeline__date">Feb 24</p>
+                              <button class="slds-button slds-button--icon-border-filled slds-button--icon-x-small" aria-haspopup="true">
+                                <svg aria-hidden="true" class="slds-button__icon">
+                                  <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/utility-sprite/svg/symbols.svg#down')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">More Options</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li>
+                        <span class="slds-assistive-text">Email</span>
+                        <div class="slds-media">
+                          <div class="slds-media__body">
+                            <div class="slds-media slds-media--timeline slds-timeline__media--email">
+                              <div class="slds-media__figure slds-timeline__icon">
+                                <div class="slds-icon_container">
+                                  <svg aria-hidden="true" class="slds-icon slds-icon--small slds-icon-standard-email">
+                                    <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/utility-sprite/svg/symbols.svg#email')}"></use>
+                                  </svg>
+                                </div>
+                              </div>
+                              <div class="slds-media__body">
+                                <h3 class="slds-truncate" title="Mobile conversation on Monday"><a href="javascript:void(0);">Mobile conversation on Monday</a></h3>
+                                <p class="slds-truncate">Hi guys, Thanks for meeting with the team today and going through the proposals we saw. This goes on until it’s truncated.</p>
+                                <ul class="slds-list--horizontal slds-wrap">
+                                  <li class="slds-truncate_container--50 slds-m-right--large slds-grid">
+                                    <span class="slds-text-title">To:</span>
+                                    <span class="slds-text-body--small slds-m-left--xx-small slds-truncate"><a href="javascript:void(0);">Lei Chan </a></span>
+                                    <span class="slds-no-flex slds-text-body--small"> + 44 more</span>
+                                  </li>
+                                  <li class="slds-m-right--large">
+                                    <span class="slds-text-title">From:</span>
+                                    <span class="slds-text-body--small"><a href="javascript:void(0);">Jason Dewar</a></span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="slds-media__figure slds-media__figure--reverse">
+                            <div class="slds-timeline__actions">
+                              <p class="slds-timeline__date">Feb 24</p>
+                              <button class="slds-button slds-button--icon-border-filled slds-button--icon-x-small" aria-haspopup="true">
+                                <svg aria-hidden="true" class="slds-button__icon">
+                                  <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/utility-sprite/svg/symbols.svg#down')}"></use>
+                                </svg>
+                                <span class="slds-assistive-text">More Options</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                </div>
+                <div class="slds-size--1-of-1 slds-small-size--1-of-1 slds-medium-size--6-of-6 slds-p-horizontal--small slds-m-top--medium">
+                    <div class="slds-button-group slds-m-top-medium slds-float--right" role="group">
+                      <button class="slds-button slds-button--neutral">Print Quote</button>
+                      <button class="slds-button slds-button--neutral">Edit</button>
+                      <button class="slds-button slds-button--brand" onClick="showModal()">+ Add New Product</button>
+                    </div>
+                    <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-m-top--medium slds-float--left">
+                      <thead>
+                        <tr class="slds-text-title--caps">
+                          <th scope="col">
+                            <div class="slds-truncate" title="Product">Product</div>
+                          </th>
+                          <th scope="col">
+                            <div class="slds-truncate" title="Quantity">Quantity</div>
+                          </th>
+                          <th scope="col">
+                            <div class="slds-truncate" title="Installation">Installation Date</div>
+                          </th>
+                          <th scope="col">
+                            <div class="slds-truncate" title="SalesPrice">Sales Price</div>
+                          </th>
+                          <th scope="col">
+                            <div class="slds-truncate" title="UnitPrice">Unit Price</div>
+                          </th>
+                          <th scope="col">
+                            <div class="slds-truncate" title="Description">Description</div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <apex:repeat value="{!products}" var="product">
+                            <tr>
+                              <th scope="row" data-label="Product">
+                                  <div class="slds-truncate" title="{!product.Product2.Name}"><a href="/{!product.Product2Id}">{!product.Product2.Name}</a></div>
+                              </th>
+                              <td data-label="Quantity">
+                                <div class="slds-truncate" title="{!product.Quantity}">{!product.Quantity}</div>
+                              </td>
+                              <td data-label="Installation">
+                                <div class="slds-truncate" title="{!product.ServiceDate}">
+                                    <apex:outputText value="{0, date, MMMM d','  yyyy}"> 
+                                        <apex:param value="{!product.ServiceDate}" /> 
+                                    </apex:outputText>
+                                </div>
+                              </td>
+                              <td data-label="SalesPrice">
+                                <div class="slds-truncate" title="{!product.TotalPrice}">{!product.TotalPrice}</div>
+                              </td>
+                              <td data-label="UnitPrice">
+                                <div class="slds-truncate" title="{!product.UnitPrice }">{!product.UnitPrice }</div>
+                              </td>  
+                              <td data-label="Description">
+                                <div class="slds-truncate" title="{!product.Description}">{!product.Description}</div>
+                              </td>
+                              
+                            </tr>
+                        </apex:repeat>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <apex:form >
+            <apex:actionFunction action="{!saveItem}" name="saveProduct"/>
+            <div role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open" id="new-modal" >
+              <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                  <div class="slds-button slds-modal__close slds-button--icon-inverse" onclick="cancel()">
+                    <svg aria-hidden="true" class="slds-button__icon slds-button__icon--large">
+                      <use xlink:href="{!URLFOR($Resource.slds104, '/assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
+                    </svg>
+                    <span class="slds-assistive-text">Close</span>
+                  </div>
+                  <h2 id="header43" class="slds-text-heading--medium">New Product</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                		<fieldset class="slds-form--compound">
+                          <legend class="slds-form-element__label slds-text-title--caps">Service Details</legend>
+                          <div class="form-element__group">
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-1">
+                                <label class="slds-form-element__label" for="input-04">Installation Date</label>
+                                <c:Datepicker componentId="datepicker-2" hiddenId="{!$Component.service_date}" fieldName="ServiceDate" ></c:Datepicker>
+                                <apex:inputHidden value="{!oppItem.ServiceDate}" id="service_date"    />
+                              </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-1">
+                                <label class="slds-form-element__label" for="input-03">Description</label>
+                                <textarea id="textarea-input-01" class="slds-textarea" placeholder="Placeholder Text" value="{!oppItem.Description}" onChange="setHidden('{!$Component.description_item}',this.value)"  >{!oppItem.Description}</textarea>
+                              	<apex:inputHidden value="{!oppItem.Description }" id="description_item" />
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </fieldset>
+                    	<fieldset class="slds-form--compound">
+                          <legend class="slds-form-element__label slds-text-title--caps">Product Details</legend>
+                          <div class="form-element__group">
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-1">
+                                <label class="slds-form-element__label" for="input-01">Product</label>
+                                <select class="slds-select" onChange="setHidden('{!$Component.product_name}',this.value)" value="{!oppItem.PricebookEntryId}">
+                          			<apex:repeat value="{!productCatalog}" var="productItem">
+                                        <option value="{!productItem.value}" >{!productItem.label}</option>
+                                    </apex:repeat>
+                                </select>
+                                <apex:inputHidden value="{!oppItem.PricebookEntryId}" id="product_name" />
+                              </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-01">Quantity</label>
+                                <input id="input-01" class="slds-input" type="text" onChange="setHidden('{!$Component.quantity}',this.value)" value="{!oppItem.Quantity}" />
+                                <apex:inputHidden value="{!oppItem.Quantity}" id="quantity" />
+                              </div>
+                              <div class="slds-form-element slds-size--1-of-2">
+                                <label class="slds-form-element__label" for="input-02">Unit Price</label>
+                                <input id="input-02" class="slds-input" type="text" onChange="setHidden('{!$Component.unitprice}',this.value)" value="{!oppItem.UnitPrice}" />
+                                <apex:inputHidden value="{!oppItem.UnitPrice}" id="unitprice" />
+                              </div>
+                            </div>
+                          </div>
+                        </fieldset>
+                </div>
+                <div class="slds-modal__footer">
+                  <div class="slds-button slds-button--neutral" onClick="cancel()">Cancel</div>
+                  <div class="slds-button slds-button--neutral slds-button--brand" onClick="saveProduct()">Save</div>
+                </div>
+              </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop--open" id="backdrop"></div>
+                
+            <script>
+                hideModal();
+            </script>
+            </apex:form>
+            
+        </div>
+    </body>    
+    </html>
+</apex:page>
